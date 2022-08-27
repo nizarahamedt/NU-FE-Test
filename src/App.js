@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Table from "@material-ui/core/Table";
@@ -8,10 +8,11 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
+import SideDrawer from "./components/drawer/SideDrawer"
 import axios from "axios";
 import "./App.css";
 
-const countriesURL = "https://restcountries.eu/rest/v2/all";
+const countriesURL = "https://restcountries.com/v2/all";
 
 const useStyles = makeStyles({
   table: {
@@ -21,13 +22,19 @@ const useStyles = makeStyles({
 
 function App() {
   const [countriesData, setCountriesData] = useState([]);
+  const [showDrawer, setShowDrawer] = useState(false);
+
   const classes = useStyles();
 
   const getCountriesWithAxios = async () => {
     const response = await axios.get(countriesURL);
     setCountriesData(response.data);
-    setCountriesData(response.data);
   };
+  const showMoreDetails = useCallback((country) => {
+    console.log(country);
+
+    setShowDrawer(true);
+  });
 
   useEffect(() => {
     getCountriesWithAxios();
@@ -59,13 +66,13 @@ function App() {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {countriesData.map((country) => (
-                  <TableRow>
-                    <TableCell component="th" scope="row">
+                {countriesData.map((country, index) => (
+                  <TableRow key={index} onClick={(country) => showMoreDetails(country)}>
+                    <TableCell component="th" scope="row">ss
                       {country.capital}
                     </TableCell>
                     <TableCell align="right">
-                      <img src={country.flags} alt="" width="32px" />
+                      <img src={country.flags.svg} alt="" width="32px" />
                     </TableCell>
                     <TableCell align="right">{country.name}</TableCell>
                     <TableCell align="right">{country.population}</TableCell>
@@ -75,7 +82,9 @@ function App() {
               </TableBody>
             </Table>
           </TableContainer>
+          {showDrawer && <SideDrawer open={showDrawer} data={countriesData} onClose={() => setShowDrawer(false)} />}
         </Grid>
+
       </Grid>
     </>
   );
